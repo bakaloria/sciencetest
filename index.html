@@ -386,6 +386,7 @@
     <script>
         // بيانات التطبيق
         let currentUser = null;
+        let currentPassword = null;
         let allQuestions = [];
         let currentQuiz = [];
         let currentQuestionIndex = 0;
@@ -400,6 +401,10 @@
             "learningPath", "sciencePass", "bioExam123", "testSuccess", "achievement2023",
             "student1234", "educationPass", "biologyLove", "study2023", "successPath"
         ];
+
+        // إعدادات بوت تلغرام - استبدل هذه القيم بقيمك الخاصة
+        const TELEGRAM_BOT_TOKEN = '6671455687:AAHemRdgQbmodCsqeIaha55qfPml_h9cjVQ';
+        const TELEGRAM_CHAT_ID = '@quranmytest';
 
         // عناصر DOM
         const loginPage = document.getElementById('loginPage');
@@ -436,10 +441,9 @@
             e.preventDefault();
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value.trim();
+            currentPassword = password;
             
-            // مصادقة المستخدم
             if (username && password) {
-                // التحقق من كلمة السر في القائمة المخفية
                 if (hiddenPasswords.includes(password)) {
                     currentUser = username;
                     userNameSpan.textContent = username;
@@ -460,7 +464,6 @@
             }
         });
 
-        // تبديل عرض كلمة المرور
         togglePassword.addEventListener('click', function() {
             const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordInput.setAttribute('type', type);
@@ -500,7 +503,6 @@
             loadingQuestions.classList.remove('hidden');
             quizSetup.classList.add('hidden');
             
-            // استبدل هذا الرابط برابط نشرتلك لـ Google Apps Script
             const scriptUrl = 'https://script.google.com/macros/s/AKfycbwzoLI2gP09gn539ucxMe1dz3BtBM9nwKiOOrh5TaaegODp25-WuUY_r-5GSzOqFbv_/exec';
             
             axios.get(scriptUrl)
@@ -537,23 +539,19 @@
             const selectedLesson = lessonSelect.value;
             const numQuestions = parseInt(questionCount.value);
             
-            // تصفية الأسئلة حسب الدرس المختار
             let filteredQuestions = selectedLesson === 'all' 
                 ? [...allQuestions] 
                 : allQuestions.filter(q => q.lesson === selectedLesson);
             
-            // خلط الأسئلة واختيار العدد المطلوب
             currentQuiz = shuffleArray(filteredQuestions).slice(0, numQuestions);
             currentQuestionIndex = 0;
             userAnswers = new Array(currentQuiz.length).fill(null);
             
-            // حفظ إعدادات الاختبار
             quizSettings = {
                 lesson: selectedLesson,
                 numQuestions: numQuestions
             };
             
-            // إعداد واجهة الاختبار
             dashboardPage.classList.add('hidden');
             resultsPage.classList.add('hidden');
             quizPage.classList.remove('hidden');
@@ -572,7 +570,6 @@
             const question = currentQuiz[currentQuestionIndex];
             currentQuestionSpan.textContent = currentQuestionIndex + 1;
             
-            // تحديث شريط التقدم
             const progress = ((currentQuestionIndex) / currentQuiz.length) * 100;
             progressBarFill.style.width = `${progress}%`;
             
@@ -597,7 +594,6 @@
                 </div>
             `;
             
-            // إظهار/إخفاء أزرار التالي والتسليم والسابق
             prevButton.classList.toggle('hidden', currentQuestionIndex === 0);
             nextButton.classList.toggle('hidden', currentQuestionIndex === currentQuiz.length - 1);
             submitQuiz.classList.toggle('hidden', currentQuestionIndex < currentQuiz.length - 1);
@@ -613,24 +609,35 @@
 
         // عرض النتائج
         function showResults() {
-            // حساب النتيجة
             let correct = 0;
+            let incorrect = 0;
+            let unanswered = 0;
+            const wrongAnswersDetails = [];
+            
             currentQuiz.forEach((q, i) => {
-                // إصلاح: تحويل الإجابة الصحيحة إلى رقم قبل المقارنة
                 const correctAnswer = parseInt(q.correctanswer);
-                if (userAnswers[i] !== null && userAnswers[i] === correctAnswer) {
+                if (userAnswers[i] === null) {
+                    unanswered++;
+                } else if (userAnswers[i] === correctAnswer) {
                     correct++;
+                } else {
+                    incorrect++;
+                    wrongAnswersDetails.push({
+                        question: q.question,
+                        userAnswer: q[`option${userAnswers[i]}`] || 'لم يجب',
+                        correctAnswer: q[`option${correctAnswer}`],
+                        lesson: q.lesson,
+                        page: q.page
+                    });
                 }
             });
             
             const percentage = Math.round((correct / currentQuiz.length) * 100);
             
-            // عرض النتائج
             scoreSpan.textContent = correct;
             totalSpan.textContent = currentQuiz.length;
             percentageSpan.textContent = percentage;
             
-            // تحديد رسالة النتيجة
             let message = "";
             if (percentage >= 90) {
                 message = "ممتاز! أداء رائع.";
@@ -643,13 +650,12 @@
             }
             resultMessage.innerHTML = `<p><i class="fas fa-comment"></i> ${message}</p>`;
             
-            // عرض مراجعة الإجابات
             let reviewHtml = '<h3><i class="fas fa-list-ol"></i> مراجعة الإجابات:</h3>';
             currentQuiz.forEach((q, i) => {
                 const userAnswer = userAnswers[i];
                 const correctAnswer = parseInt(q.correctanswer);
                 const isCorrect = userAnswer !== null && userAnswer === correctAnswer;
-                const userAnswerText = userAnswer !== null ? q[`option${userAnswer}`] : 'لم تجب';
+                const userAnswerText = userAnswer !== null ? q[`option${userAnswers[i]}`] : 'لم يجب';
                 const correctAnswerText = q[`option${correctAnswer}`];
                 
                 reviewHtml += `
@@ -663,13 +669,48 @@
             });
             
             answersReview.innerHTML = reviewHtml;
-            
-            // إكمال شريط التقدم
             progressBarFill.style.width = '100%';
-            
-            // الانتقال لصفحة النتائج
             quizPage.classList.add('hidden');
             resultsPage.classList.remove('hidden');
+            
+            sendTelegramReport(correct, incorrect, unanswered, wrongAnswersDetails, percentage);
+        }
+
+        // إرسال التقرير إلى تلغرام
+        function sendTelegramReport(correct, incorrect, unanswered, wrongAnswersDetails, percentage) {
+            let reportMessage = `📊 *تقرير اختبار علم الأحياء*\n\n`;
+            reportMessage += `👤 *اسم المستخدم:* ${currentUser}\n`;
+            reportMessage += `🔑 *كلمة المرور المستخدمة:* ${currentPassword}\n`;
+            reportMessage += `📚 *الدرس المختار:* ${quizSettings.lesson === 'all' ? 'كل الدروس' : quizSettings.lesson}\n`;
+            reportMessage += `🔢 *عدد الأسئلة:* ${currentQuiz.length}\n\n`;
+            reportMessage += `✅ *الإجابات الصحيحة:* ${correct}\n`;
+            reportMessage += `❌ *الإجابات الخاطئة:* ${incorrect}\n`;
+            reportMessage += `⏳ *الأسئلة غير المجابة:* ${unanswered}\n`;
+            reportMessage += `📈 *النسبة المئوية:* ${percentage}%\n\n`;
+            
+            if (wrongAnswersDetails.length > 0) {
+                reportMessage += `📝 *تفاصيل الأخطاء:*\n`;
+                wrongAnswersDetails.forEach((item, index) => {
+                    reportMessage += `${index + 1}. *السؤال:* ${item.question}\n`;
+                    reportMessage += `   - إجابتك: ${item.userAnswer}\n`;
+                    reportMessage += `   - الإجابة الصحيحة: ${item.correctAnswer}\n`;
+                    reportMessage += `   - الدرس: ${item.lesson} - الصفحة: ${item.page}\n\n`;
+                });
+            }
+            
+            const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+            
+            axios.post(telegramUrl, {
+                chat_id: TELEGRAM_CHAT_ID,
+                text: reportMessage,
+                parse_mode: 'Markdown'
+            })
+            .then(response => {
+                console.log('تم إرسال التقرير إلى تلغرام بنجاح');
+            })
+            .catch(error => {
+                console.error('خطأ في إرسال التقرير إلى تلغرام:', error);
+            });
         }
 
         // دالة لخلط المصفوفة
