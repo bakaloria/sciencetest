@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار علم الأحياء</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --primary-hover: #2980b9;
+            --secondary-color: #2c3e50;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+            --light-gray: #f5f5f5;
+            --medium-gray: #ddd;
+            --dark-gray: #333;
+            --white: #fff;
+            --box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            --border-radius: 8px;
+        }
+        
+        body {
+            font-family: 'Tahoma', Arial, sans-serif;
+            background-color: var(--light-gray);
+            margin: 0;
+            padding: 0;
+            color: var(--dark-gray);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--white);
+            box-shadow: var(--box-shadow);
+            border-radius: var(--border-radius);
+            margin-top: 30px;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+        
+        h1, h2, h3 {
+            color: var(--secondary-color);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--medium-gray);
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        input:focus, select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            padding: 12px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 15px;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button.secondary {
+            background-color: var(--secondary-color);
+        }
+        
+        button.secondary:hover {
+            background-color: #1a252f;
+        }
+        
+        .question {
+            background-color: var(--light-gray);
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 25px;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .options label {
+            display: block;
+            padding: 12px;
+            margin: 8px 0;
+            background-color: var(--white);
+            border-radius: 4px;
+            cursor: pointer;
+            border: 1px solid var(--medium-gray);
+            transition: all 0.2s;
+        }
+        
+        .options label:hover {
+            background-color: #f0f8ff;
+            border-color: var(--primary-color);
+        }
+        
+        .options input[type="radio"] {
+            margin-left: 10px;
+            width: auto;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .result {
+            text-align: center;
+            font-size: 24px;
+            margin: 25px 0;
+            padding: 20px;
+            background-color: var(--light-gray);
+            border-radius: var(--border-radius);
+        }
+        
+        .progress {
+            text-align: center;
+            margin: 15px 0;
+            font-weight: bold;
+            font-size: 18px;
+            color: var(--secondary-color);
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background-color: var(--medium-gray);
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-bar-fill {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0%;
+            transition: width 0.5s;
+        }
+        
+        .error {
+            color: var(--error-color);
+            text-align: center;
+            padding: 10px;
+            background-color: #fdecea;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        
+        .success {
+            color: var(--success-color);
+            text-align: center;
+            padding: 10px;
+            background-color: #e8f8f0;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        
+        .loading {
+            text-align: center;
+            font-size: 18px;
+            margin: 30px 0;
+            color: var(--secondary-color);
+        }
+        
+        .loading i {
+            margin-left: 10px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .correct {
+            border-left: 4px solid var(--success-color);
+            background-color: #e8f8f0;
+        }
+        
+        .incorrect {
+            border-left: 4px solid var(--error-color);
+            background-color: #fdecea;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            left: 15px;
+            top: 40px;
+            cursor: pointer;
+            color: var(--secondary-color);
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn-group button {
+            flex: 1;
+            margin-top: 0;
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            color: var(--primary-color);
+            margin-right: 5px;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--secondary-color);
+            color: var(--white);
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 14px;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+                margin-top: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- صفحة تسجيل الدخول -->
+        <div id="loginPage">
+            <h1><i class="fas fa-flask"></i> نظام اختبار علم الأحياء</h1>
+            <h2>تسجيل الدخول</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">اسم المستخدم:</label>
+                    <input type="text" id="username" required placeholder="أدخل اسم المستخدم">
+                </div>
+                <div class="form-group">
+                    <label for="password">كلمة المرور:</label>
+                    <input type="password" id="password" required placeholder="أدخل كلمة المرور">
+                    <i class="fas fa-eye password-toggle" id="togglePassword"></i>
+                </div>
+                <button type="submit"><i class="fas fa-sign-in-alt"></i> دخول</button>
+                <p id="loginError" class="error hidden"></p>
+                <p id="loginSuccess" class="success hidden"></p>
+            </form>
+        </div>
+
+        <!-- الصفحة الرئيسية -->
+        <div id="dashboardPage" class="hidden">
+            <h1><i class="fas fa-user"></i> مرحباً <span id="userName"></span></h1>
+            <h2><i class="fas fa-flask"></i> اختبار علم الأحياء</h2>
+            <div id="loadingQuestions" class="loading hidden"><i class="fas fa-spinner"></i> جاري تحميل الأسئلة...</div>
+            <form id="quizSetup">
+                <div class="form-group">
+                    <label for="lessonSelect">اختر الدرس:</label>
+                    <select id="lessonSelect" disabled>
+                        <option value="all">كل الدروس</option>
+                        <!-- سيتم ملء الدروس ديناميكياً -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="questionCount">عدد الأسئلة:</label>
+                    <select id="questionCount">
+                        <option value="1">1 سؤال</option>
+                        <option value="2">2 أسئلة</option>
+                        <option value="3">3 أسئلة</option>
+                        <option value="4">4 أسئلة</option>
+                        <option value="5">5 أسئلة</option>
+                        <option value="6">6 أسئلة</option>
+                        <option value="7">7 أسئلة</option>
+                        <option value="8">8 أسئلة</option>
+                        <option value="9">9 أسئلة</option>
+                        <option value="10">10 أسئلة</option>
+                        <option value="15">15 سؤالاً</option>
+                        <option value="20">20 سؤالاً</option>
+                    </select>
+                </div>
+                <button type="submit" id="startQuizBtn" disabled><i class="fas fa-play"></i> بدء الاختبار</button>
+            </form>
+        </div>
+
+        <!-- صفحة الاختبار -->
+        <div id="quizPage" class="hidden">
+            <div class="progress">
+                السؤال <span id="currentQuestion">1</span> من <span id="totalQuestions">10</span>
+                <div class="progress-bar">
+                    <div class="progress-bar-fill" id="progressBarFill"></div>
+                </div>
+            </div>
+            <div id="questionContainer"></div>
+            <div class="btn-group">
+                <button id="prevButton" class="hidden"><i class="fas fa-arrow-right"></i> السابق</button>
+                <button id="nextButton" class="hidden"><i class="fas fa-arrow-left"></i> التالي</button>
+            </div>
+            <button id="submitQuiz" class="hidden"><i class="fas fa-paper-plane"></i> تسليم الاختبار</button>
+        </div>
+
+        <!-- صفحة النتائج -->
+        <div id="resultsPage" class="hidden">
+            <h2><i class="fas fa-chart-bar"></i> نتيجة الاختبار</h2>
+            <div class="result">
+                <p>لقد حصلت على <span id="score">0</span> من <span id="total">10</span></p>
+                <p>النسبة: <span id="percentage">0</span>%</p>
+                <div id="resultMessage"></div>
+            </div>
+            <div id="answersReview"></div>
+            <button id="backToDashboard" style="margin-top: 20px;"><i class="fas fa-home"></i> العودة للصفحة الرئيسية</button>
+        </div>
+    </div>
+
+    <script>
+        // بيانات التطبيق
+        let currentUser = null;
+        let allQuestions = [];
+        let currentQuiz = [];
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let quizSettings = {};
+
+        // كلمات السر المخفية للمستخدمين (25 كلمة سر)
+        const hiddenPasswords = [
+            "bio1234", "science2023", "biologyPass", "testPassword", "learnBio",
+            "secret123", "eduBio567", "studentAccess", "examPortal", "knowledge2023",
+            "schoolBio", "studyHard", "passTestNow", "biology2023", "educationFirst",
+            "learningPath", "sciencePass", "bioExam123", "testSuccess", "achievement2023",
+            "student1234", "educationPass", "biologyLove", "study2023", "successPath"
+        ];
+
+        // عناصر DOM
+        const loginPage = document.getElementById('loginPage');
+        const dashboardPage = document.getElementById('dashboardPage');
+        const quizPage = document.getElementById('quizPage');
+        const resultsPage = document.getElementById('resultsPage');
+        const loginForm = document.getElementById('loginForm');
+        const quizSetup = document.getElementById('quizSetup');
+        const userNameSpan = document.getElementById('userName');
+        const lessonSelect = document.getElementById('lessonSelect');
+        const questionCount = document.getElementById('questionCount');
+        const startQuizBtn = document.getElementById('startQuizBtn');
+        const loadingQuestions = document.getElementById('loadingQuestions');
+        const questionContainer = document.getElementById('questionContainer');
+        const currentQuestionSpan = document.getElementById('currentQuestion');
+        const totalQuestionsSpan = document.getElementById('totalQuestions');
+        const progressBarFill = document.getElementById('progressBarFill');
+        const prevButton = document.getElementById('prevButton');
+        const nextButton = document.getElementById('nextButton');
+        const submitQuiz = document.getElementById('submitQuiz');
+        const scoreSpan = document.getElementById('score');
+        const totalSpan = document.getElementById('total');
+        const percentageSpan = document.getElementById('percentage');
+        const resultMessage = document.getElementById('resultMessage');
+        const answersReview = document.getElementById('answersReview');
+        const backToDashboard = document.getElementById('backToDashboard');
+        const loginError = document.getElementById('loginError');
+        const loginSuccess = document.getElementById('loginSuccess');
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+
+        // أحداث النموذج
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            
+            // مصادقة المستخدم
+            if (username && password) {
+                // التحقق من كلمة السر في القائمة المخفية
+                if (hiddenPasswords.includes(password)) {
+                    currentUser = username;
+                    userNameSpan.textContent = username;
+                    loginPage.classList.add('hidden');
+                    dashboardPage.classList.remove('hidden');
+                    loginError.classList.add('hidden');
+                    loginSuccess.textContent = 'تم تسجيل الدخول بنجاح!';
+                    loginSuccess.classList.remove('hidden');
+                    setTimeout(() => loginSuccess.classList.add('hidden'), 3000);
+                    loadQuestionsFromGoogleSheets();
+                } else {
+                    loginError.textContent = 'كلمة المرور غير صحيحة';
+                    loginError.classList.remove('hidden');
+                }
+            } else {
+                loginError.textContent = 'يرجى إدخال اسم المستخدم وكلمة المرور';
+                loginError.classList.remove('hidden');
+            }
+        });
+
+        // تبديل عرض كلمة المرور
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.classList.toggle('fa-eye-slash');
+            this.classList.toggle('fa-eye');
+        });
+
+        quizSetup.addEventListener('submit', function(e) {
+            e.preventDefault();
+            startQuiz();
+        });
+
+        prevButton.addEventListener('click', function() {
+            saveAnswer();
+            currentQuestionIndex--;
+            showQuestion();
+        });
+
+        nextButton.addEventListener('click', function() {
+            saveAnswer();
+            currentQuestionIndex++;
+            showQuestion();
+        });
+
+        submitQuiz.addEventListener('click', function() {
+            saveAnswer();
+            showResults();
+        });
+
+        backToDashboard.addEventListener('click', function() {
+            resultsPage.classList.add('hidden');
+            dashboardPage.classList.remove('hidden');
+        });
+
+        // دالة لتحميل الأسئلة من Google Sheets
+        function loadQuestionsFromGoogleSheets() {
+            loadingQuestions.classList.remove('hidden');
+            quizSetup.classList.add('hidden');
+            
+            // استبدل هذا الرابط برابط نشرتلك لـ Google Apps Script
+            const scriptUrl = 'https://script.google.com/macros/s/AKfycbwzoLI2gP09gn539ucxMe1dz3BtBM9nwKiOOrh5TaaegODp25-WuUY_r-5GSzOqFbv_/exec';
+            
+            axios.get(scriptUrl)
+                .then(response => {
+                    allQuestions = response.data;
+                    populateLessonSelect();
+                    loadingQuestions.classList.add('hidden');
+                    quizSetup.classList.remove('hidden');
+                    startQuizBtn.disabled = false;
+                })
+                .catch(error => {
+                    console.error('Error loading questions:', error);
+                    loadingQuestions.innerHTML = '<p class="error"><i class="fas fa-exclamation-triangle"></i> حدث خطأ في تحميل الأسئلة. يرجى المحاولة لاحقاً.</p>';
+                });
+        }
+
+        // ملء قائمة الدروس
+        function populateLessonSelect() {
+            const lessons = [...new Set(allQuestions.map(q => q.lesson))];
+            lessonSelect.innerHTML = '<option value="all">كل الدروس</option>';
+            
+            lessons.forEach(lesson => {
+                const option = document.createElement('option');
+                option.value = lesson;
+                option.textContent = lesson;
+                lessonSelect.appendChild(option);
+            });
+            
+            lessonSelect.disabled = false;
+        }
+
+        // بدء الاختبار
+        function startQuiz() {
+            const selectedLesson = lessonSelect.value;
+            const numQuestions = parseInt(questionCount.value);
+            
+            // تصفية الأسئلة حسب الدرس المختار
+            let filteredQuestions = selectedLesson === 'all' 
+                ? [...allQuestions] 
+                : allQuestions.filter(q => q.lesson === selectedLesson);
+            
+            // خلط الأسئلة واختيار العدد المطلوب
+            currentQuiz = shuffleArray(filteredQuestions).slice(0, numQuestions);
+            currentQuestionIndex = 0;
+            userAnswers = new Array(currentQuiz.length).fill(null);
+            
+            // حفظ إعدادات الاختبار
+            quizSettings = {
+                lesson: selectedLesson,
+                numQuestions: numQuestions
+            };
+            
+            // إعداد واجهة الاختبار
+            dashboardPage.classList.add('hidden');
+            resultsPage.classList.add('hidden');
+            quizPage.classList.remove('hidden');
+            totalQuestionsSpan.textContent = currentQuiz.length;
+            
+            showQuestion();
+        }
+
+        // عرض السؤال الحالي
+        function showQuestion() {
+            if (currentQuestionIndex >= currentQuiz.length) {
+                showResults();
+                return;
+            }
+            
+            const question = currentQuiz[currentQuestionIndex];
+            currentQuestionSpan.textContent = currentQuestionIndex + 1;
+            
+            // تحديث شريط التقدم
+            const progress = ((currentQuestionIndex) / currentQuiz.length) * 100;
+            progressBarFill.style.width = `${progress}%`;
+            
+            let optionsHtml = '';
+            for (let i = 1; i <= 4; i++) {
+                if (question[`option${i}`]) {
+                    optionsHtml += `
+                        <label>
+                            <input type="radio" name="answer" value="${i}" 
+                                ${userAnswers[currentQuestionIndex] === i ? 'checked' : ''}>
+                            ${question[`option${i}`]}
+                        </label>
+                    `;
+                }
+            }
+            
+            questionContainer.innerHTML = `
+                <div class="question">
+                    <h3>${question.question}</h3>
+                    ${question.image ? `<img src="${question.image}" alt="صورة السؤال" style="max-width:100%; margin:10px 0;">` : ''}
+                    <div class="options">${optionsHtml}</div>
+                </div>
+            `;
+            
+            // إظهار/إخفاء أزرار التالي والتسليم والسابق
+            prevButton.classList.toggle('hidden', currentQuestionIndex === 0);
+            nextButton.classList.toggle('hidden', currentQuestionIndex === currentQuiz.length - 1);
+            submitQuiz.classList.toggle('hidden', currentQuestionIndex < currentQuiz.length - 1);
+        }
+
+        // حفظ الإجابة الحالية
+        function saveAnswer() {
+            const selectedOption = document.querySelector('input[name="answer"]:checked');
+            if (selectedOption) {
+                userAnswers[currentQuestionIndex] = parseInt(selectedOption.value);
+            }
+        }
+
+        // عرض النتائج
+        function showResults() {
+            // حساب النتيجة
+            let correct = 0;
+            currentQuiz.forEach((q, i) => {
+                // إصلاح: تحويل الإجابة الصحيحة إلى رقم قبل المقارنة
+                const correctAnswer = parseInt(q.correctanswer);
+                if (userAnswers[i] !== null && userAnswers[i] === correctAnswer) {
+                    correct++;
+                }
+            });
+            
+            const percentage = Math.round((correct / currentQuiz.length) * 100);
+            
+            // عرض النتائج
+            scoreSpan.textContent = correct;
+            totalSpan.textContent = currentQuiz.length;
+            percentageSpan.textContent = percentage;
+            
+            // تحديد رسالة النتيجة
+            let message = "";
+            if (percentage >= 90) {
+                message = "ممتاز! أداء رائع.";
+            } else if (percentage >= 70) {
+                message = "جيد جداً! استمر في العمل الجيد.";
+            } else if (percentage >= 50) {
+                message = "ليس سيئاً، ولكن يمكنك التحسن.";
+            } else {
+                message = "يحتاج إلى تحسين. ننصحك بمراجعة الدروس مرة أخرى.";
+            }
+            resultMessage.innerHTML = `<p><i class="fas fa-comment"></i> ${message}</p>`;
+            
+            // عرض مراجعة الإجابات
+            let reviewHtml = '<h3><i class="fas fa-list-ol"></i> مراجعة الإجابات:</h3>';
+            currentQuiz.forEach((q, i) => {
+                const userAnswer = userAnswers[i];
+                const correctAnswer = parseInt(q.correctanswer);
+                const isCorrect = userAnswer !== null && userAnswer === correctAnswer;
+                const userAnswerText = userAnswer !== null ? q[`option${userAnswer}`] : 'لم تجب';
+                const correctAnswerText = q[`option${correctAnswer}`];
+                
+                reviewHtml += `
+                    <div class="question ${isCorrect ? 'correct' : 'incorrect'}">
+                        <p><strong>السؤال ${i + 1}:</strong> ${q.question}</p>
+                        <p><i class="fas fa-user"></i> إجابتك: ${userAnswerText}</p>
+                        ${!isCorrect ? `<p><i class="fas fa-check"></i> الإجابة الصحيحة: ${correctAnswerText}</p>` : ''}
+                        <p><small><i class="fas fa-book"></i> الدرس: ${q.lesson} - <i class="fas fa-file"></i> الصفحة: ${q.page}</small></p>
+                    </div>
+                `;
+            });
+            
+            answersReview.innerHTML = reviewHtml;
+            
+            // إكمال شريط التقدم
+            progressBarFill.style.width = '100%';
+            
+            // الانتقال لصفحة النتائج
+            quizPage.classList.add('hidden');
+            resultsPage.classList.remove('hidden');
+        }
+
+        // دالة لخلط المصفوفة
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+    </script>
+</body>
+</html>
