@@ -678,10 +678,9 @@
 
         // إرسال التقرير إلى تلغرام
         function sendTelegramReport(correct, incorrect, unanswered, wrongAnswersDetails, percentage) {
-            let reportMessage = `📊 *تقرير اختبار علم الأحياء*\n\n`;
-            reportMessage += `👤 *اسم المستخدم:* ${currentUser}\n`;
-            reportMessage += `🔑 *كلمة المرور المستخدمة:* ${currentPassword}\n`;
-            reportMessage += `📚 *الدرس المختار:* ${quizSettings.lesson === 'all' ? 'كل الدروس' : quizSettings.lesson}\n`;
+            let reportMessage = `📊 *تقرير اختبار علم الأحياء للصف الثالث الثانوي العلمي*\n\n`;
+    
+            reportMessage += `📚 *عنوان الدرس:* ${quizSettings.lesson === 'all' ? 'كل الدروس' : quizSettings.lesson}\n`;
             reportMessage += `🔢 *عدد الأسئلة:* ${currentQuiz.length}\n\n`;
             reportMessage += `✅ *الإجابات الصحيحة:* ${correct}\n`;
             reportMessage += `❌ *الإجابات الخاطئة:* ${incorrect}\n`;
