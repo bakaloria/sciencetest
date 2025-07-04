@@ -676,42 +676,40 @@
             sendTelegramReport(correct, incorrect, unanswered, wrongAnswersDetails, percentage);
         }
 
-        // إرسال التقرير إلى تلغرام
         function sendTelegramReport(correct, incorrect, unanswered, wrongAnswersDetails, percentage) {
-            let reportMessage = `📊 *تقرير اختبار علم الأحياء للصف الثالث الثانوي العلمي*\n\n`;
-    
-            reportMessage += `📚 *عنوان الدرس:* ${quizSettings.lesson === 'all' ? 'كل الدروس' : quizSettings.lesson}\n`;
-            reportMessage += `🔢 *عدد الأسئلة:* ${currentQuiz.length}\n\n`;
-            reportMessage += `✅ *الإجابات الصحيحة:* ${correct}\n`;
-            reportMessage += `❌ *الإجابات الخاطئة:* ${incorrect}\n`;
-            reportMessage += `⏳ *الأسئلة غير المجابة:* ${unanswered}\n`;
-            reportMessage += `📈 *النسبة المئوية:* ${percentage}%\n\n`;
-            
-            if (wrongAnswersDetails.length > 0) {
-                reportMessage += `📝 *تفاصيل الأخطاء:*\n`;
-                wrongAnswersDetails.forEach((item, index) => {
-                    reportMessage += `${index + 1}. *السؤال:* ${item.question}\n`;
-                    reportMessage += `   - إجابتك: ${item.userAnswer}\n`;
-                    reportMessage += `   - الإجابة الصحيحة: ${item.correctAnswer}\n`;
-                    reportMessage += `   - الدرس: ${item.lesson} - الصفحة: ${item.page}\n\n`;
-                });
-            }
-            
-            const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-            
-            axios.post(telegramUrl, {
-                chat_id: TELEGRAM_CHAT_ID,
-                text: reportMessage,
-                parse_mode: 'Markdown'
-            })
-            .then(response => {
-                console.log('تم إرسال التقرير إلى تلغرام بنجاح');
-            })
-            .catch(error => {
-                console.error('خطأ في إرسال التقرير إلى تلغرام:', error);
-            });
-        }
+    let reportMessage = `📊 *تقرير اختبار علم الأحياء للصف الثالث الثانوي العلمي*\n\n`;
 
+    reportMessage += `📚 *الدرس المختار:* ${quizSettings.lesson === 'all' ? 'كل الدروس' : quizSettings.lesson}\n`;
+    reportMessage += `🔢 *عدد الأسئلة:* ${currentQuiz.length}\n\n`;
+    reportMessage += `✅ *الإجابات الصحيحة:* ${correct}\n`;
+    reportMessage += `❌ *الإجابات الخاطئة:* ${incorrect}\n`;
+    reportMessage += `⏳ *الأسئلة غير المجابة:* ${unanswered}\n`;
+    reportMessage += `📈 *النسبة المئوية:* ${percentage}%\n\n`;
+    
+    if (wrongAnswersDetails.length > 0) {
+        reportMessage += `📝 *تفاصيل الأخطاء:*\n`;
+        wrongAnswersDetails.forEach((item, index) => {
+            reportMessage += `${index + 1}. *السؤال:* ${item.question}\n`;
+            reportMessage += `   - إجابتك: ${item.userAnswer}\n`;
+            reportMessage += `   - الإجابة الصحيحة: ${item.correctAnswer}\n`;
+            reportMessage += `   - الدرس: ${item.lesson} - الصفحة: ${item.page}\n\n`;
+        });
+    }
+    
+    const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+    
+    axios.post(telegramUrl, {
+        chat_id: TELEGRAM_CHAT_ID,
+        text: reportMessage,
+        parse_mode: 'Markdown'
+    })
+    .then(response => {
+        console.log('تم إرسال التقرير إلى تلغرام بنجاح');
+    })
+    .catch(error => {
+        console.error('خطأ في إرسال التقرير إلى تلغرام:', error);
+    });
+}
         // دالة لخلط المصفوفة
         function shuffleArray(array) {
             const newArray = [...array];
